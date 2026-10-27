@@ -5,7 +5,6 @@ document.getElementById('calculateBtn').addEventListener('click', function() {
 
     let f, a, b;
 
-    // Definición de funciones según el ejercicio seleccionado
     switch(exercise) {
         case '19':
             f = x => x * Math.exp(2 * x);
@@ -37,10 +36,6 @@ document.getElementById('calculateBtn').addEventListener('click', function() {
             break;
     }
 
-    let result = 0;
-    let detailsHTML = '';
-
-    // Ajuste de n para reglas específicas de Simpson
     if (method === 'simpson13' && n % 2 !== 0) n++;
     if (method === 'simpson38' && n % 3 !== 0) n += (3 - (n % 3));
 
@@ -54,63 +49,63 @@ document.getElementById('calculateBtn').addEventListener('click', function() {
         yValues.push(f(xi));
     }
 
-    // Algoritmos de integración
+    let result = 0;
+    let methodTitle = '';
+
     if (method === 'trapezoidal') {
         let sum = yValues[0] + yValues[n];
-        for (let i = 1; i < n; i++) {
-            sum += 2 * yValues[i];
-        }
+        for (let i = 1; i < n; i++) sum += 2 * yValues[i];
         result = (h / 2) * sum;
-        detailsHTML = `<p><strong>Método:</strong> Trapecio Compuesto (n = ${n}, h = ${h.toFixed(4)})</p>`;
+        methodTitle = 'Regla del Trapecio Compuesto';
     } else if (method === 'simpson13') {
-        if (n < 2) n = 2;
         let sum = yValues[0] + yValues[n];
-        for (let i = 1; i < n; i++) {
-            sum += (i % 2 === 0 ? 2 : 4) * yValues[i];
-        }
+        for (let i = 1; i < n; i++) sum += (i % 2 === 0 ? 2 : 4) * yValues[i];
         result = (h / 3) * sum;
-        detailsHTML = `<p><strong>Método:</strong> Simpson 1/3 (n = ${n}, h = ${h.toFixed(4)})</p>`;
+        methodTitle = 'Regla de Simpson 1/3';
     } else if (method === 'simpson38') {
-        if (n < 3) n = 3;
         let sum = yValues[0] + yValues[n];
-        for (let i = 1; i < n; i++) {
-            sum += (i % 3 === 0 ? 2 : 3) * yValues[i];
-        }
+        for (let i = 1; i < n; i++) sum += (i % 3 === 0 ? 2 : 3) * yValues[i];
         result = ((3 * h) / 8) * sum;
-        detailsHTML = `<p><strong>Método:</strong> Simpson 3/8 (n = ${n}, h = ${h.toFixed(4)})</p>`;
+        methodTitle = 'Regla de Simpson 3/8';
     }
 
-    detailsHTML += `<p><strong>Valor Integral Aproximado:</strong> <span style="font-size: 1.2em; color: #22c55e;">${result.toFixed(6)}</span></p>`;
+    let htmlOutput = `
+        <p><strong>Método Aplicado:</strong> ${methodTitle}</p>
+        <p><strong>Intervalos (n):</strong> ${n} | <strong>Tamaño de paso (h):</strong> ${h.toFixed(4)}</p>
+        <p><strong>Valor Integral Aproximado:</strong> <span style="font-size: 1.3em; color: #16a34a; font-weight: bold;">${result.toFixed(6)}</span></p>
+    `;
 
-    document.getElementById('outputResults').innerHTML = detailsHTML;
+    document.getElementById('outputResults').innerHTML = htmlOutput;
     document.getElementById('resultsSection').style.display = 'block';
 
-    // Renderizar Gráfico
     renderChart(xValues, yValues);
 });
 
 let myChart = null;
 function renderChart(xData, yData) {
     const ctx = document.getElementById('integrationChart').getContext('2d');
-    if (myChart) {
-        myChart.destroy();
-    }
+    if (myChart) myChart.destroy();
+
     myChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: xData,
             datasets: [{
-                label: 'f(x)',
+                label: 'Comportamiento de f(x)',
                 data: yData,
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                borderWidth: 2,
                 fill: true,
                 tension: 0.3
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { font: { family: 'Inter' } } }
+            }
         }
     });
 }
